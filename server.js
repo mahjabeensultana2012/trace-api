@@ -1,10 +1,24 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
+const cors = require('cors');
+const knex = require('knex');
 
+const db = knex({
+  client: 'pg',
+  connection: {
+    host: '127.0.0.1',
+    user: 'mahjabeensultana',
+    password: '',
+    database: 'face-recognition',
+  },
+});
+
+//console.log(postgres.select('*').from.users);
 const app = express();
-app.use(bodyParser.json());
 
+app.use(bodyParser.json());
+app.use(cors());
 const database = {
   users: [
     {
@@ -49,7 +63,8 @@ app.post('/signin', (req, res) => {
     req.body.email === database.users[0].email &&
     req.body.password === database.users[0].password
   ) {
-    res.json('success');
+    //res.json('success');
+    res.json(database.users[0]);
   } else {
     res.status(400).json('error logging in');
   }
@@ -58,15 +73,22 @@ app.post('/signin', (req, res) => {
 app.post('/register', (req, res) => {
   const { name, email, password } = req.body;
 
-  database.users.push({
-    id: '3',
-    name: name,
-    email: email,
-    password: password,
-    entries: 0,
-    joined: new Date(),
-  }),
-    res.json(database.users[database.users.length - 1]);
+  // database.users.push({
+  //   id: '3',
+  //   name: name,
+  //   email: email,
+
+  //   entries: 0,
+  //   joined: new Date(),
+  // }),
+  db('users')
+    .insert({
+      name: name,
+      email: email,
+      joined: new Date(),
+    })
+    .then(console.log);
+  res.json(database.users[database.users.length - 1]);
 });
 
 app.get('/profile/:id', (req, res) => {
@@ -83,7 +105,7 @@ app.get('/profile/:id', (req, res) => {
   }
 });
 
-app.post('/image', (req, res) => {
+app.put('/image', (req, res) => {
   const { id } = req.body;
   let found = false;
   database.users.forEach(user => {
