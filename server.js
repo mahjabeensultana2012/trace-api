@@ -82,13 +82,16 @@ app.post('/register', (req, res) => {
   //   joined: new Date(),
   // }),
   db('users')
+    .returning('*')
     .insert({
       name: name,
       email: email,
       joined: new Date(),
     })
-    .then(console.log);
-  res.json(database.users[database.users.length - 1]);
+    .then(user => {
+      res.json(user[0]);
+    })
+    .catch(err => res.status(400).json('Error! unable to register'));
 });
 
 app.get('/profile/:id', (req, res) => {
