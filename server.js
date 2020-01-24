@@ -44,30 +44,10 @@ app.get('/', (req, res) => {
 });
 
 app.post('/signin', (req, res) => {
-  bcrypt.compare(
-    '1234',
-    '$2a$10$oJk5SfkVPHe4eC5CvMMi0u8mLw6o.1uXo4vfVLVTyD/iOUyFhQ.S6',
-    function(err, res) {
-      console.log('first guess: ', res);
-    }
-  );
-
-  bcrypt.compare(
-    'veggies',
-    '$2a$10$oJk5SfkVPHe4eC5CvMMi0u8mLw6o.1uXo4vfVLVTyD/iOUyFhQ.S6',
-    function(err, res) {
-      console.log('Second guess: ', res);
-    }
-  );
-  if (
-    req.body.email === database.users[0].email &&
-    req.body.password === database.users[0].password
-  ) {
-    //res.json('success');
-    res.json(database.users[0]);
-  } else {
-    res.status(400).json('error logging in');
-  }
+  db.select('email', 'hash')
+    .from('login')
+    .where({ email: req.body.email })
+    .then(data => console.log(data));
 });
 
 app.post('/register', (req, res) => {
